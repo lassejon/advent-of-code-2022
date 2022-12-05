@@ -16,5 +16,9 @@ var day02 = await Day02.Initialize(reader);
 var points = day02.GetPointSumPart01();
 var pointsCorrectede = day02.GetPointSumPart02();
 
-
 Console.WriteLine($"{points}, {pointsCorrectede}");
+
+var day03 = await Day03.Initialize(reader);
+var answer = day03.TransformInput();
+
+Console.WriteLine($"{answer}");
