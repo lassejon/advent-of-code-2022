@@ -1,11 +1,13 @@
-﻿namespace AdventOfCode.Challenges;
+﻿using System.Collections;
+
+namespace AdventOfCode.Challenges;
 
 public class Day05
 {
     private InputReader? _inputReader;
     private List<string?> _data = null!;
-    private List<List<char>> _stacks = null!;
-    private List<IEnumerable<char>> _instructions = null!;
+    private List<Stack<char>> _stacks = null!;
+    private List<IEnumerable<int>> _instructions = null!;
     private int _skipLength;
 
     public static async Task<Day05> Initialize(InputReader? reader)
@@ -20,42 +22,72 @@ public class Day05
         thisObject._skipLength = thisObject.GetSkipLength();
         thisObject._instructions = thisObject.GetInstructions();
 
-        var x = thisObject.GetMovedStacks();
+        //var x = thisObject.GetMovedStacks();
 
         return thisObject;
     }
 
-    private IEnumerable<IEnumerable<char>> GetMovedStacks()
+    public (char, int)[] GetAnswerPartOne()
     {
+        return GetMovedStacks().Select((stacks, i) => stacks.Count > 0 ? (stacks.Pop(), i + 1) : ('å', i + 1)).ToArray();
+    }
+
+    private IEnumerable<Stack<char>> GetMovedStacks()
+    {
+        var index = 0;
         _instructions.ForEach(i =>
         {
-            var pilesToMove = int.Parse(i.ElementAt(0).ToString());
-            var moveFrom = int.Parse(i.ElementAt(1).ToString());
-            var moveTo = int.Parse(i.ElementAt(2).ToString());
+            var pilesToMove = i.ElementAt(0);
+            var moveFrom = i.ElementAt(1) -1;
+            var moveTo = i.ElementAt(2) - 1;
 
             var range = new List<char>();
             while (pilesToMove > 0)
             {
-                var last = _stacks[moveFrom].Count - 1;
-                range.Add(_stacks[moveFrom][last]);
-                _stacks[moveFrom].RemoveAt(last);
-
+                if (index == 13)
+                {
+                    
+                }
+                _stacks[moveTo].Push(_stacks[moveFrom].Pop());
                 pilesToMove--;
             }
-            
-            _stacks[moveTo].AddRange(range);
+
+            index++;
         });
 
         return _stacks;
     }
 
-    private List<IEnumerable<char>> GetInstructions()
+    private List<IEnumerable<int>> GetInstructions()
     {
-        var x = _data.Skip(_skipLength).Select(row => row.Where(char.IsNumber));
+        var isPrevNum = false;
+        var prev = int.MaxValue;
+        var x = _data.Skip(_skipLength).Select(row => row.Select(c =>
+        {
+            var toParse = c.ToString();
+            if (isPrevNum && char.IsNumber(c))
+            {
+                toParse = $"{prev}{c}";
+            }
+
+            var result = -1;
+            if (int.TryParse(toParse, out var parsed))
+            {
+                result = parsed;
+                prev = parsed;
+                isPrevNum = true;
+            }
+            else
+            {
+                isPrevNum = false;
+            }
+
+            return result;
+        }).Where(n => n != -1)).Select(x => x.Skip(x.Count() - 3));
         return x.ToList();
     }
     
-    private async Task<List<List<char>>> GetStacks()
+    private async Task<List<Stack<char>>> GetStacks()
     {
         var matrixLength = _data.First().Length;
 
@@ -66,7 +98,7 @@ public class Day05
         var matrix = RotateMatrixCounterClockwise(matrixArray);
         var stacks = matrix
             .Where(stack => char.IsNumber(stack.Last()))
-            .Select(stack => stack.Reverse().Skip(1).Where(char.IsLetter).ToList())
+            .Select(stack => new Stack<char>(stack.Take(stack.Length - 1).Where(char.IsLetter)))
             .Reverse();
         
         return stacks.ToList();

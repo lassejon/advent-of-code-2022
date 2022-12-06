@@ -31,3 +31,9 @@ var reader = new InputReader("https://adventofcode.com", ("ru", "53616c7465645f5
 // Console.WriteLine($"{answer}, {answerTwo}");
 
 var day05 = await Day05.Initialize(reader);
+var answ = day05.GetAnswerPartOne();
+
+foreach (var valueTuple in answ)
+{
+    Console.WriteLine(valueTuple);
+}
