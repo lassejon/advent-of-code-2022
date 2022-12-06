@@ -38,23 +38,24 @@ public class Day03
     {
         var result = _cleanedData
             .Select((r, i) => (r.ToHashSet(), i))
-            .GroupBy(p => p.i / 3, i => i.Item1)
-            .Select(g =>
+            .GroupBy(p => p.i / 3)
+            .Select(grp =>
             {
                 var shared = new HashSet<char>();
-                var x = g.Select((s, i) =>
+                var x = grp.Select((g, i) =>
                 {
                     if (i == 0)
                     {
-                        shared = s;
+                        shared = g.Item1;
                     }
-
-                    return s.AsParallel().Where(c => shared.Contains(c)).ToArray();
+                    var p = g.Item1.AsParallel().Where(c => shared.Contains(c)).ToArray();
+                    shared = p.ToHashSet();
+                    
+                    return i == 2 ? p.Sum(c => char.IsLower(c) ? c - 'a' + 1 : c - 'A' + 27) : 0;
                 });
-
-                return x.Select(chars => chars.Sum(c => char.IsLower(c) ? c - 'a' + 1 : c - 'A' + 27));
+                return x.Sum();
             })
-            .Sum(i => i.Sum());
+            .Sum();
 
         return result;
     }

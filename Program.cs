@@ -20,5 +20,6 @@ Console.WriteLine($"{points}, {pointsCorrectede}");
 
 var day03 = await Day03.Initialize(reader);
 var answer = day03.TransformInput();
+var secondPartDay03 = day03.TransformInputPart02();
 
-Console.WriteLine($"{answer}");
+Console.WriteLine($"{answer}, {secondPartDay03}");
